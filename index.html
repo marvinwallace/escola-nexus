@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Escola Nexus · Portal de gestão</title>
+<meta name="description" content="Sistema de gestão escolar da Escola Nexus — dashboard administrativa, portal do professor e portal do aluno.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #FAFAF7;
+    --surface: #FFFFFF;
+    --ink: #0F172A;
+    --ink-soft: #475569;
+    --ink-mute: #94A3B8;
+    --line: #E5E7EB;
+    --line-soft: #F1F5F9;
+    --brand: #1E1B4B;
+    --brand-soft: #EEF2FF;
+    --accent: #84CC16;
+    --accent-deep: #4D7C0F;
+    --accent-soft: #ECFCCB;
+    --warn: #F59E0B;
+    --warn-soft: #FEF3C7;
+    --danger: #F43F5E;
+    --danger-soft: #FFE4E6;
+  }
+  html, body { height: 100%; }
+  body {
+    font-family: 'Manrope', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.55;
+  }
+
+  /* HERO */
+  .hero {
+    background: var(--brand);
+    color: white;
+    padding: 32px 0 80px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -200px; right: -200px;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(132,204,22,0.18) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -300px; left: -200px;
+    width: 500px; height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(132,204,22,0.08) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 28px; position: relative; z-index: 1; }
+
+  .nav-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 80px; }
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo-mark {
+    width: 36px; height: 36px; border-radius: 9px;
+    background: var(--accent);
+    display: grid; place-items: center;
+    font-weight: 800; color: var(--brand); font-size: 18px;
+  }
+  .logo-text { font-weight: 800; font-size: 18px; letter-spacing: -0.02em; }
+  .logo-text span { color: var(--accent); }
+  .nav-actions { display: flex; align-items: center; gap: 20px; font-size: 13px; }
+  .nav-actions a { color: rgba(255,255,255,0.75); text-decoration: none; font-weight: 500; }
+  .nav-actions a:hover { color: white; }
+  .badge-mockup {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(132,204,22,0.15);
+    border: 1px solid rgba(132,204,22,0.3);
+    color: var(--accent);
+    padding: 5px 12px; border-radius: 999px;
+    font-size: 11.5px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .badge-mockup .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  .hero-content { max-width: 780px; }
+  .hero-eyebrow {
+    display: inline-block;
+    background: rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.85);
+    padding: 6px 14px; border-radius: 999px;
+    font-size: 12px; font-weight: 600;
+    margin-bottom: 24px;
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+  h1 {
+    font-size: clamp(36px, 5.5vw, 60px);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 1.05;
+    margin-bottom: 20px;
+  }
+  h1 em { font-style: normal; color: var(--accent); }
+  .hero-sub {
+    font-size: clamp(16px, 1.8vw, 19px);
+    color: rgba(255,255,255,0.8);
+    max-width: 620px;
+    line-height: 1.55;
+  }
+  .hero-meta {
+    display: flex;
+    gap: 32px;
+    margin-top: 48px;
+    padding-top: 28px;
+    border-top: 1px solid rgba(255,255,255,0.12);
+    flex-wrap: wrap;
+  }
+  .meta-item .num { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; font-family: 'Manrope'; }
+  .meta-item .num span { color: var(--accent); }
+  .meta-item .lbl { font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.55); font-weight: 600; margin-top: 2px; }
+
+  /* SECTION title */
+  section { padding: 72px 0; }
+  .section-head { margin-bottom: 40px; max-width: 720px; }
+  .section-eyebrow { font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent-deep); font-weight: 700; margin-bottom: 12px; font-family: 'JetBrains Mono', monospace; }
+  h2 { font-size: clamp(28px, 3.5vw, 38px); font-weight: 700; letter-spacing: -0.025em; line-height: 1.15; margin-bottom: 12px; }
+  .section-head p { color: var(--ink-soft); font-size: 15.5px; }
+
+  /* CARDS */
+  .cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .portal-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    padding: 28px;
+    transition: all 0.25s ease;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+  .portal-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--ink);
+    box-shadow: 0 20px 50px -16px rgba(15,23,42,0.18);
+  }
+  .portal-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 4px;
+    background: var(--accent);
+    transform: translateY(4px);
+    transition: transform 0.25s;
+  }
+  .portal-card:hover::after { transform: translateY(0); }
+
+  .card-icon {
+    width: 56px; height: 56px;
+    border-radius: 14px;
+    display: grid; place-items: center;
+    margin-bottom: 22px;
+  }
+  .card-icon.admin { background: var(--brand-soft); color: var(--brand); }
+  .card-icon.prof { background: var(--accent-soft); color: var(--accent-deep); }
+  .card-icon.aluno { background: #FAE8FF; color: #86198F; }
+  .card-icon svg { width: 26px; height: 26px; }
+
+  .portal-card h3 { font-size: 21px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 8px; }
+  .portal-card p { font-size: 14px; color: var(--ink-soft); margin-bottom: 22px; flex: 1; line-height: 1.55; }
+
+  .features-list { list-style: none; margin-bottom: 24px; }
+  .features-list li {
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    padding: 7px 0;
+    border-bottom: 1px solid var(--line-soft);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .features-list li:last-child { border-bottom: none; }
+  .features-list .check {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    display: grid; place-items: center;
+    flex-shrink: 0;
+  }
+  .features-list .check svg { width: 10px; height: 10px; color: var(--accent-deep); }
+
+  .card-cta {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    background: var(--ink);
+    color: white;
+    padding: 13px 20px;
+    border-radius: 12px;
+    font-size: 13.5px;
+    font-weight: 700;
+    transition: background 0.2s;
+  }
+  .portal-card:hover .card-cta { background: var(--accent-deep); }
+  .card-cta svg { width: 14px; height: 14px; transition: transform 0.2s; }
+  .portal-card:hover .card-cta svg { transform: translateX(3px); }
+
+  .device-tag {
+    position: absolute;
+    top: 24px; right: 24px;
+    font-size: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  /* INFO BOX */
+  .info-section { background: var(--surface); border-top: 1px solid var(--line); }
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
+  .info-grid h2 { margin-bottom: 18px; }
+  .info-grid > div p { color: var(--ink-soft); font-size: 15px; margin-bottom: 16px; line-height: 1.7; }
+  .info-grid ul { list-style: none; }
+  .info-grid ul li { padding: 12px 0; border-bottom: 1px solid var(--line-soft); display: flex; align-items: flex-start; gap: 12px; font-size: 14px; }
+  .info-grid ul li:last-child { border-bottom: none; }
+  .info-grid ul li strong { display: block; margin-bottom: 2px; font-weight: 700; }
+  .info-grid ul li span { color: var(--ink-soft); font-size: 13px; }
+  .step-num {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: var(--brand);
+    color: var(--accent);
+    display: grid; place-items: center;
+    font-weight: 700;
+    font-size: 12px;
+    flex-shrink: 0;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* FOOTER */
+  footer { background: var(--ink); color: rgba(255,255,255,0.6); padding: 32px 0; font-size: 13px; }
+  .footer-grid { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+  .footer-grid a { color: var(--accent); text-decoration: none; font-weight: 600; }
+  .footer-tag { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; }
+
+  @media (max-width: 900px) {
+    .cards-grid { grid-template-columns: 1fr; }
+    .info-grid { grid-template-columns: 1fr; gap: 32px; }
+    .nav-bar { margin-bottom: 56px; }
+    section { padding: 56px 0; }
+    .hero { padding-bottom: 56px; }
+    .hero-meta { gap: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="container">
+    <div class="nav-bar">
+      <div class="logo">
+        <div class="logo-mark">N</div>
+        <div class="logo-text">nexus<span>.</span></div>
+      </div>
+      <div class="nav-actions">
+        <span class="badge-mockup"><span class="dot"></span>Protótipo v1</span>
+      </div>
+    </div>
+
+    <div class="hero-content">
+      <span class="hero-eyebrow">📚 Escola Nexus · Sistema de gestão</span>
+      <h1>Um portal único para <em>alunos, professores</em> e gestão.</h1>
+      <p class="hero-sub">
+        Acompanhe matrículas, frequência e progresso de cada turma em um só lugar.
+        Os mockups abaixo apresentam como ficará o sistema completo, com base nos dados reais da escola.
+      </p>
+
+      <div class="hero-meta">
+        <div class="meta-item">
+          <div class="num">187<span>+</span></div>
+          <div class="lbl">Alunos ativos</div>
+        </div>
+        <div class="meta-item">
+          <div class="num">6</div>
+          <div class="lbl">Turmas semanais</div>
+        </div>
+        <div class="meta-item">
+          <div class="num">3</div>
+          <div class="lbl">Cursos oferecidos</div>
+        </div>
+        <div class="meta-item">
+          <div class="num">5</div>
+          <div class="lbl">Vendedores na equipe</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="container">
+    <div class="section-head">
+      <div class="section-eyebrow">// Escolha um perfil</div>
+      <h2>Três visões, um mesmo sistema</h2>
+      <p>Cada usuário acessa o que precisa, sem se perder em telas que não fazem sentido pra ele. Clique em um dos cartões abaixo para explorar.</p>
+    </div>
+
+    <div class="cards-grid">
+
+      <a href="dashboard_admin.html" class="portal-card">
+        <div class="device-tag">[ desktop ]</div>
+        <div class="card-icon admin">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        </div>
+        <h3>Dashboard Administrativa</h3>
+        <p>Visão completa para a direção: matrículas, frequência média, performance por vendedor e alertas automáticos de alunos em risco.</p>
+
+        <ul class="features-list">
+          <li><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span>KPIs em tempo real</li>
+          <li><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span>Ranking de vendedores</li>
+          <li><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span>Alertas de evasão</li>
+        </ul>
+
+        <span class="card-cta">
+          Abrir dashboard
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </span>
+      </a>
+
+      <a href="portal_professor.html" class="portal-card">
+        <div class="device-tag">[ mobile ]</div>
+        <div class="card-icon prof">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+        </div>
+        <h3>Portal do Professor</h3>
+        <p>Feito para usar dentro da sala de aula no celular. O professor vê a turma do dia e marca presença com um toque, sem complicação.</p>
+
+        <ul class="features-list">
+          <li><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span>Marcar P / F / FJ rapidamente</li>
+          <li><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span>Atalho "todos presentes"</li>
+          <li><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span>Histórico do aluno</li>
+        </ul>
+
+        <span class="card-cta">
+          Abrir portal
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </span>
+      </a>
+
+      <a href="portal_aluno.html" class="portal-card">
+        <div class="device-tag">[ web + mobile ]</div>
+        <div class="card-icon aluno">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <h3>Portal do Aluno</h3>
+        <p>Cada aluno (ou responsável) acompanha sua frequência, próximas aulas e progresso no curso de forma visual e simples.</p>
+
+        <ul class="features-list">
+          <li><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span>Calendário com presenças</li>
+          <li><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span>% de frequência ao vivo</li>
+          <li><span class="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span>Progresso do curso</li>
+        </ul>
+
+        <span class="card-cta">
+          Abrir portal
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </span>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<section class="info-section">
+  <div class="container">
+    <div class="info-grid">
+      <div>
+        <div class="section-eyebrow">// Sobre este protótipo</div>
+        <h2>Como o sistema vai funcionar de verdade</h2>
+        <p>
+          As telas que você está vendo são <strong>protótipos visuais</strong> — botões e dados são fixos, servem para validar a experiência antes de ligar tudo a uma base real.
+        </p>
+        <p>
+          Quando aprovado, o sistema será montado em ferramentas no-code (AppSheet ou Glide) conectadas direto à planilha de matrículas da escola. Os dados ficam vivos: o que o professor marca aparece imediatamente para a direção e para o aluno.
+        </p>
+      </div>
+
+      <div>
+        <div class="section-eyebrow">// Próximos passos</div>
+        <h2>Roteiro de implementação</h2>
+        <ul>
+          <li>
+            <div class="step-num">1</div>
+            <div>
+              <strong>Limpeza da planilha atual</strong>
+              <span>Reorganizar dados em tabelas separadas (alunos, turmas, frequências)</span>
+            </div>
+          </li>
+          <li>
+            <div class="step-num">2</div>
+            <div>
+              <strong>Configurar AppSheet ou Glide</strong>
+              <span>Conectar à planilha e gerar app web + mobile automaticamente</span>
+            </div>
+          </li>
+          <li>
+            <div class="step-num">3</div>
+            <div>
+              <strong>Testar com 1 turma piloto</strong>
+              <span>Validar com um professor antes de expandir para todos</span>
+            </div>
+          </li>
+          <li>
+            <div class="step-num">4</div>
+            <div>
+              <strong>Liberar para alunos e responsáveis</strong>
+              <span>Compartilhar links de acesso individual via WhatsApp</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="logo" style="margin-bottom: 8px;">
+          <div class="logo-mark">N</div>
+          <div class="logo-text" style="color: white;">nexus<span>.</span></div>
+        </div>
+        <span class="footer-tag">© 2026 Escola Nexus · Protótipo de gestão escolar</span>
+      </div>
+      <div>
+        Construído com cuidado · <a href="#">voltar ao topo ↑</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
