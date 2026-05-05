@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexus · Dashboard Administrativa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #FAFAF7;
+    --surface: #FFFFFF;
+    --ink: #0F172A;
+    --ink-soft: #475569;
+    --ink-mute: #94A3B8;
+    --line: #E5E7EB;
+    --line-soft: #F1F5F9;
+    --brand: #1E1B4B;
+    --brand-soft: #EEF2FF;
+    --accent: #84CC16;
+    --accent-deep: #4D7C0F;
+    --warn: #F59E0B;
+    --warn-soft: #FEF3C7;
+    --danger: #F43F5E;
+    --danger-soft: #FFE4E6;
+    --info-soft: #E0F2FE;
+    --info-deep: #075985;
+  }
+  html, body { height: 100%; }
+  body {
+    font-family: 'Manrope', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .app { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+
+  /* SIDEBAR */
+  aside {
+    background: var(--brand);
+    color: #fff;
+    padding: 28px 20px;
+    position: sticky; top: 0; height: 100vh;
+    display: flex; flex-direction: column;
+  }
+  .logo { display: flex; align-items: center; gap: 10px; margin-bottom: 36px; }
+  .logo-mark {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: var(--accent);
+    display: grid; place-items: center;
+    font-weight: 800; color: var(--brand); font-size: 16px;
+  }
+  .logo-text { font-weight: 800; font-size: 16px; letter-spacing: -0.02em; }
+  .logo-text span { color: var(--accent); }
+  .nav-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: rgba(255,255,255,.45); margin: 16px 8px 8px; font-weight: 600; }
+  .nav a {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 12px; margin-bottom: 2px;
+    color: rgba(255,255,255,.75);
+    text-decoration: none; border-radius: 8px;
+    font-size: 13.5px; font-weight: 500;
+    transition: all .15s;
+  }
+  .nav a:hover { background: rgba(255,255,255,.06); color: #fff; }
+  .nav a.active { background: rgba(132,204,22,.15); color: var(--accent); }
+  .nav a .ico { width: 16px; height: 16px; flex-shrink: 0; }
+  .profile { margin-top: auto; padding-top: 20px; border-top: 1px solid rgba(255,255,255,.1); display: flex; align-items: center; gap: 10px; }
+  .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: var(--brand); display: grid; place-items: center; font-weight: 700; font-size: 12px; }
+  .profile-info { font-size: 12px; }
+  .profile-info .name { font-weight: 600; }
+  .profile-info .role { color: rgba(255,255,255,.5); }
+
+  /* MAIN */
+  main { padding: 32px 40px; overflow-x: hidden; }
+  .topbar { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 28px; flex-wrap: wrap; gap: 16px; }
+  h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.025em; }
+  .topbar p { color: var(--ink-soft); margin-top: 4px; font-size: 13px; }
+  .filter-pill {
+    background: var(--surface); border: 1px solid var(--line);
+    padding: 8px 14px; border-radius: 999px; font-size: 12.5px;
+    font-weight: 500; color: var(--ink-soft); cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .filter-pill.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .filter-row { display: flex; gap: 8px; }
+
+  /* KPIs */
+  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+  .kpi {
+    background: var(--surface); border: 1px solid var(--line);
+    padding: 20px; border-radius: 14px;
+    position: relative; overflow: hidden;
+  }
+  .kpi-label { font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-soft); font-weight: 600; }
+  .kpi-value { font-size: 30px; font-weight: 700; letter-spacing: -0.02em; margin: 8px 0 4px; font-family: 'Manrope'; }
+  .kpi-trend { font-size: 12px; display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 6px; font-weight: 600; }
+  .trend-up { background: #DCFCE7; color: #166534; }
+  .trend-down { background: var(--danger-soft); color: #9F1239; }
+  .trend-flat { background: var(--line-soft); color: var(--ink-soft); }
+  .kpi-icon { position: absolute; top: 18px; right: 18px; width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; }
+
+  /* GRID */
+  .grid-2 { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .card {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 14px; padding: 22px;
+  }
+  .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; }
+  .card-header h3 { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; }
+  .card-header p { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+  .card-link { font-size: 12px; color: var(--brand); font-weight: 600; text-decoration: none; }
+
+  /* Bar chart - Vendedores */
+  .bar-row { display: grid; grid-template-columns: 80px 1fr 40px; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .bar-row .name { font-size: 13px; font-weight: 600; }
+  .bar-track { height: 8px; background: var(--line-soft); border-radius: 999px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 999px; }
+  .bar-row .val { font-size: 12px; color: var(--ink-soft); text-align: right; font-family: 'JetBrains Mono'; font-weight: 500; }
+
+  /* Pie/Donut */
+  .donut-wrap { display: flex; align-items: center; gap: 24px; }
+  .donut { width: 140px; height: 140px; border-radius: 50%; background: conic-gradient(var(--brand) 0 62%, var(--accent) 62% 88%, var(--warn) 88% 100%); display: grid; place-items: center; position: relative; }
+  .donut::after { content: ''; position: absolute; width: 90px; height: 90px; border-radius: 50%; background: var(--surface); }
+  .donut-center { position: relative; z-index: 1; text-align: center; }
+  .donut-center .num { font-size: 22px; font-weight: 700; }
+  .donut-center .lbl { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-soft); }
+  .legend { flex: 1; }
+  .legend-item { display: flex; align-items: center; gap: 8px; padding: 7px 0; font-size: 12.5px; border-bottom: 1px solid var(--line-soft); }
+  .legend-item:last-child { border-bottom: none; }
+  .legend-dot { width: 8px; height: 8px; border-radius: 2px; }
+  .legend-name { flex: 1; font-weight: 500; }
+  .legend-num { font-family: 'JetBrains Mono'; font-weight: 600; font-size: 12px; }
+
+  /* Frequência por turma */
+  .freq-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+  .freq-cell { background: var(--line-soft); padding: 12px 10px; border-radius: 8px; text-align: center; }
+  .freq-cell .day { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-soft); font-weight: 600; }
+  .freq-cell .pct { font-size: 18px; font-weight: 700; margin-top: 4px; font-family: 'Manrope'; letter-spacing: -0.02em; }
+  .freq-cell .count { font-size: 10.5px; color: var(--ink-mute); margin-top: 2px; }
+  .freq-cell.good { background: #ECFCCB; }
+  .freq-cell.good .pct { color: var(--accent-deep); }
+  .freq-cell.warn { background: var(--warn-soft); }
+  .freq-cell.warn .pct { color: #92400E; }
+  .freq-cell.bad { background: var(--danger-soft); }
+  .freq-cell.bad .pct { color: #9F1239; }
+
+  /* Tabela */
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-soft); font-weight: 600; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+  td { padding: 14px 12px; border-bottom: 1px solid var(--line-soft); font-size: 13px; vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--bg); }
+  .student-name { display: flex; align-items: center; gap: 10px; }
+  .student-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--brand-soft); color: var(--brand); display: grid; place-items: center; font-weight: 700; font-size: 11px; flex-shrink: 0; }
+  .student-name .meta { font-size: 11px; color: var(--ink-mute); margin-top: 1px; }
+  .badge { padding: 3px 9px; border-radius: 999px; font-size: 11px; font-weight: 600; display: inline-block; }
+  .badge.basics { background: var(--info-soft); color: var(--info-deep); }
+  .badge.premium { background: #FAE8FF; color: #86198F; }
+  .badge.active { background: #DCFCE7; color: #166534; }
+  .badge.risk { background: var(--warn-soft); color: #92400E; }
+  .badge.cancel { background: var(--danger-soft); color: #9F1239; }
+  .freq-mini { display: inline-flex; align-items: center; gap: 6px; }
+  .freq-mini .bar-mini { width: 60px; height: 5px; background: var(--line-soft); border-radius: 999px; overflow: hidden; }
+  .freq-mini .bar-mini-fill { height: 100%; border-radius: 999px; }
+
+  /* Alertas */
+  .alerts { background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%); border: 1px solid #FDE68A; border-radius: 14px; padding: 18px 22px; display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+  .alert-icon { width: 40px; height: 40px; border-radius: 10px; background: var(--warn); display: grid; place-items: center; flex-shrink: 0; }
+  .alert-text strong { display: block; margin-bottom: 2px; font-size: 14px; }
+  .alert-text p { font-size: 12.5px; color: #78350F; }
+  .alert-cta { margin-left: auto; background: var(--ink); color: #fff; border: 0; padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 12.5px; cursor: pointer; font-family: inherit; }
+
+  /* Watermark */
+  .mock-tag { position: fixed; bottom: 16px; right: 16px; background: var(--ink); color: #fff; padding: 6px 12px; border-radius: 999px; font-size: 11px; font-weight: 500; font-family: 'JetBrains Mono'; opacity: 0.85; }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="logo">
+      <div class="logo-mark">N</div>
+      <div class="logo-text">nexus<span>.</span></div>
+    </div>
+
+    <nav class="nav">
+      <div class="nav-label">Geral</div>
+      <a href="#" class="active">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </a>
+      <a href="#">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Alunos
+      </a>
+      <a href="#">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Turmas
+      </a>
+      <a href="#">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        Frequência
+      </a>
+      <a href="#">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Matrículas
+      </a>
+
+      <div class="nav-label">Equipe</div>
+      <a href="#">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>
+        Vendedores
+      </a>
+      <a href="#">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+        Professores
+      </a>
+
+      <div class="nav-label">Sistema</div>
+      <a href="#">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Configurações
+      </a>
+    </nav>
+
+    <div class="profile">
+      <div class="avatar">DA</div>
+      <div class="profile-info">
+        <div class="name">Direção Nexus</div>
+        <div class="role">Administrador</div>
+      </div>
+    </div>
+  </aside>
+
+  <main>
+    <div class="topbar">
+      <div>
+        <h1>Visão geral</h1>
+        <p>Bom dia, Direção. Aqui está o panorama da sua escola hoje.</p>
+      </div>
+      <div class="filter-row">
+        <div class="filter-pill active">Hoje</div>
+        <div class="filter-pill">Semana</div>
+        <div class="filter-pill">Mês</div>
+        <div class="filter-pill">Ano letivo</div>
+      </div>
+    </div>
+
+    <div class="alerts">
+      <div class="alert-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </div>
+      <div class="alert-text">
+        <strong>14 alunos com frequência crítica</strong>
+        <p>Mais de 25% de faltas no mês. Recomendamos contato com os responsáveis.</p>
+      </div>
+      <button class="alert-cta">Ver lista →</button>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi">
+        <div class="kpi-label">Alunos ativos</div>
+        <div class="kpi-value">187</div>
+        <span class="kpi-trend trend-up">↑ 12 este mês</span>
+        <div class="kpi-icon" style="background: var(--brand-soft); color: var(--brand);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        </div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Frequência média</div>
+        <div class="kpi-value">78<span style="font-size:18px;color:var(--ink-soft);">%</span></div>
+        <span class="kpi-trend trend-down">↓ 3% vs mês anterior</span>
+        <div class="kpi-icon" style="background: #ECFCCB; color: var(--accent-deep);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Matrículas no mês</div>
+        <div class="kpi-value">23</div>
+        <span class="kpi-trend trend-up">↑ 4 vs abril</span>
+        <div class="kpi-icon" style="background: #FAE8FF; color: #86198F;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Cancelamentos</div>
+        <div class="kpi-value">5</div>
+        <span class="kpi-trend trend-flat">= mesmo ritmo</span>
+        <div class="kpi-icon" style="background: var(--danger-soft); color: #9F1239;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h3>Matrículas por vendedor</h3>
+            <p>Maio 2026 · em ordem de performance</p>
+          </div>
+          <a href="#" class="card-link">Detalhes →</a>
+        </div>
+        <div class="bar-row">
+          <div class="name">Milton</div>
+          <div class="bar-track"><div class="bar-fill" style="width: 92%; background: var(--brand);"></div></div>
+          <div class="val">47</div>
+        </div>
+        <div class="bar-row">
+          <div class="name">Cleudes</div>
+          <div class="bar-track"><div class="bar-fill" style="width: 76%; background: var(--brand);"></div></div>
+          <div class="val">39</div>
+        </div>
+        <div class="bar-row">
+          <div class="name">Alex</div>
+          <div class="bar-track"><div class="bar-fill" style="width: 64%; background: var(--brand);"></div></div>
+          <div class="val">33</div>
+        </div>
+        <div class="bar-row">
+          <div class="name">Jairon</div>
+          <div class="bar-track"><div class="bar-fill" style="width: 38%; background: var(--brand);"></div></div>
+          <div class="val">19</div>
+        </div>
+        <div class="bar-row">
+          <div class="name">Enjoy</div>
+          <div class="bar-track"><div class="bar-fill" style="width: 30%; background: var(--brand);"></div></div>
+          <div class="val">15</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h3>Distribuição de cursos</h3>
+            <p>Total de 187 alunos</p>
+          </div>
+        </div>
+        <div class="donut-wrap">
+          <div class="donut">
+            <div class="donut-center">
+              <div class="num">187</div>
+              <div class="lbl">Alunos</div>
+            </div>
+          </div>
+          <div class="legend">
+            <div class="legend-item">
+              <div class="legend-dot" style="background: var(--brand);"></div>
+              <div class="legend-name">Computer Basics CB1</div>
+              <div class="legend-num">116</div>
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot" style="background: var(--accent);"></div>
+              <div class="legend-name">Computer Premium</div>
+              <div class="legend-num">49</div>
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot" style="background: var(--warn);"></div>
+              <div class="legend-name">Computer Basics CB2</div>
+              <div class="legend-num">22</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom: 24px;">
+      <div class="card-header">
+        <div>
+          <h3>Frequência por turma · esta semana</h3>
+          <p>Percentual de presenças sobre o esperado</p>
+        </div>
+      </div>
+      <div class="freq-grid">
+        <div class="freq-cell good">
+          <div class="day">Segunda</div>
+          <div class="pct">87%</div>
+          <div class="count">26 de 30</div>
+        </div>
+        <div class="freq-cell good">
+          <div class="day">Terça</div>
+          <div class="pct">81%</div>
+          <div class="count">22 de 27</div>
+        </div>
+        <div class="freq-cell warn">
+          <div class="day">Quarta</div>
+          <div class="pct">74%</div>
+          <div class="count">17 de 23</div>
+        </div>
+        <div class="freq-cell bad">
+          <div class="day">Quinta</div>
+          <div class="pct">62%</div>
+          <div class="count">11 de 18</div>
+        </div>
+        <div class="freq-cell warn">
+          <div class="day">Sexta</div>
+          <div class="pct">73%</div>
+          <div class="count">19 de 26</div>
+        </div>
+        <div class="freq-cell good">
+          <div class="day">Sábado</div>
+          <div class="pct">85%</div>
+          <div class="count">29 de 34</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <h3>Alunos recentes</h3>
+          <p>Últimas matrículas · clique para ver perfil</p>
+        </div>
+        <a href="#" class="card-link">Ver todos →</a>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Aluno</th>
+            <th>Curso</th>
+            <th>Turma</th>
+            <th>Vendedor</th>
+            <th>Frequência</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div class="student-name">
+                <div class="student-avatar">SR</div>
+                <div>
+                  <div style="font-weight: 600;">Samuel dos Reis Cardoso</div>
+                  <div class="meta">Resp.: Aleberlene Lima</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="badge basics">Basics CB1</span></td>
+            <td>Segunda · 09:00</td>
+            <td>Milton</td>
+            <td>
+              <div class="freq-mini">
+                <div class="bar-mini"><div class="bar-mini-fill" style="width: 90%; background: var(--accent);"></div></div>
+                <span style="font-size: 11.5px; font-weight: 600;">90%</span>
+              </div>
+            </td>
+            <td><span class="badge active">Ativo</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="student-name">
+                <div class="student-avatar">VL</div>
+                <div>
+                  <div style="font-weight: 600;">Vitória Louanny de Sousa Mendes</div>
+                  <div class="meta">Resp.: Maria José Almeida</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="badge basics">Basics CB1</span></td>
+            <td>Terça · 09:00</td>
+            <td>Alex</td>
+            <td>
+              <div class="freq-mini">
+                <div class="bar-mini"><div class="bar-mini-fill" style="width: 95%; background: var(--accent);"></div></div>
+                <span style="font-size: 11.5px; font-weight: 600;">95%</span>
+              </div>
+            </td>
+            <td><span class="badge active">Ativo</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="student-name">
+                <div class="student-avatar">AR</div>
+                <div>
+                  <div style="font-weight: 600;">Aurora Rebeca Alves de Sousa</div>
+                  <div class="meta">Resp.: Daniele Iasmin</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="badge basics">Basics CB1</span></td>
+            <td>Segunda · 09:00</td>
+            <td>Alex</td>
+            <td>
+              <div class="freq-mini">
+                <div class="bar-mini"><div class="bar-mini-fill" style="width: 28%; background: var(--danger);"></div></div>
+                <span style="font-size: 11.5px; font-weight: 600; color: var(--danger);">28%</span>
+              </div>
+            </td>
+            <td><span class="badge risk">Risco</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="student-name">
+                <div class="student-avatar">JK</div>
+                <div>
+                  <div style="font-weight: 600;">Jaylan Keven Alves Galvão</div>
+                  <div class="meta">Resp.: Jailson Galvão</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="badge premium">Premium CG</span></td>
+            <td>Sexta · 08:30</td>
+            <td>Alex</td>
+            <td>
+              <div class="freq-mini">
+                <div class="bar-mini"><div class="bar-mini-fill" style="width: 82%; background: var(--accent);"></div></div>
+                <span style="font-size: 11.5px; font-weight: 600;">82%</span>
+              </div>
+            </td>
+            <td><span class="badge active">Ativo</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="student-name">
+                <div class="student-avatar">FE</div>
+                <div>
+                  <div style="font-weight: 600;">Francisca Emaelly dos Santos</div>
+                  <div class="meta">Resp.: Maria Lucielene</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="badge premium">Premium CG</span></td>
+            <td>Quarta · 08:30</td>
+            <td>Cleudes</td>
+            <td>
+              <div class="freq-mini">
+                <div class="bar-mini"><div class="bar-mini-fill" style="width: 0%; background: var(--danger);"></div></div>
+                <span style="font-size: 11.5px; font-weight: 600; color: var(--ink-mute);">—</span>
+              </div>
+            </td>
+            <td><span class="badge cancel">Cancelado</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="student-name">
+                <div class="student-avatar">MB</div>
+                <div>
+                  <div style="font-weight: 600;">Maria Beatriz Costa Silva</div>
+                  <div class="meta">Resp.: Antônia de Sousa</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="badge premium">Premium CG</span></td>
+            <td>Sexta · 08:30</td>
+            <td>Alex</td>
+            <td>
+              <div class="freq-mini">
+                <div class="bar-mini"><div class="bar-mini-fill" style="width: 96%; background: var(--accent);"></div></div>
+                <span style="font-size: 11.5px; font-weight: 600;">96%</span>
+              </div>
+            </td>
+            <td><span class="badge active">Ativo</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+<div class="mock-tag">mockup · admin view</div>
+</body>
+</html>
